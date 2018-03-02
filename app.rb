@@ -2,13 +2,22 @@ require 'rubygems'
 require 'sinatra'
 require 'slim'
 require 'active_record'
-require './models'
+require 'sprockets'
+require './User'
 
-set :bind, '0.0.0.0'
+# set :bind, '0.0.0.0'
+
+environment = Sprockets::Environment.new
+
+set :environment, environment
+
+environment.append_path "assets/stylesheets"
+environment.append_path "assets/javascripts"
 
 ActiveRecord::Base.establish_connection(
-  :adapter => 'sqlite3',
-  :database => 'sinatra.sqlite3.db'
+  :adapter => 'postgresql',
+  :database => 'rails_dev',
+  :username => 'postgres'
 )
 
 get "/" do
@@ -18,4 +27,9 @@ end
 
 get '/page' do 
   slim :page
+end
+
+get "/assets/*" do
+  env["PATH_INFO"].sub!("/assets", "")
+  settings.environment.call(env)
 end
